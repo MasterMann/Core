@@ -73,8 +73,11 @@ int Helium::ScanArgs(const wchar_t* fmt, va_list args)
 	return 0;
 }
 
+// vstepano: consider renaming this function to FileLineScan (or something that will hit that this function works on a line by line basis )
 int Helium::FileScan(FILE* f, const char* fmt, ...)
 {
+	HELIUM_ASSERT(f);
+	// vstepano: Should we also assert on an empty format string? HELIUM_ASSERT(fmt != '\0');
 	char buf[1024];
 	fgets( buf, sizeof( buf ), f );
 
@@ -93,6 +96,7 @@ int Helium::FileScan(FILE* f, const wchar_t* fmt, ...)
 
 int Helium::FileScanArgs(FILE* f, const char* fmt, va_list args)
 {
+	HELIUM_ASSERT(f);
 	char buf[1024];
 	fgets( buf, sizeof( buf ), f );
 	return vsscanf( buf, fmt, args );

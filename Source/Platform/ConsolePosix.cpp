@@ -83,6 +83,7 @@ int Helium::ScanArgs(const wchar_t* fmt, va_list args)
 
 int Helium::FileScan(FILE* f, const char* fmt, ...)
 {
+	HELIUM_ASSERT(f);
 	char buf[1024];
 	if ( fgets( buf, sizeof( buf ), f ) )
 	{
@@ -106,6 +107,7 @@ int Helium::FileScan(FILE* f, const wchar_t* fmt, ...)
 
 int Helium::FileScanArgs(FILE* f, const char* fmt, va_list args)
 {
+	HELIUM_ASSERT(f);
 	char buf[1024];
 	if ( fgets( buf, sizeof( buf ), f ) )
 	{

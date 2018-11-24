@@ -37,47 +37,106 @@ TEST( PlatformConsoleTest, Scan )
 	ASSERT_FALSE( false);
 }
 
+void setupFileScanTest(const char* const fileName, const char* strings[], size_t stringCount)
+{
+	std::ofstream fileToCheck(fileName);
+	
+	for (size_t i = 0; i < stringCount; i++)
+	{
+		fileToCheck << strings[i];
+	}
+
+	fileToCheck.close();
+}
+
  TEST(PlatformConsoleTest, CheckScanFromFile )
  {
 	 const char* const fileName = "scan_test1.txt";
-	 std::ofstream fileToCheck(fileName);
-	 const char* const testString = "testing123";
-	 const char* const testString2 = " 54321";
-	 fileToCheck << testString << testString2;
-	 fileToCheck.close();
+	 const char* strings[] = { "testing123", "\n", "54321" };
+	 setupFileScanTest(fileName, strings, 3);
 
 	 FILE* fileToScan = fopen(fileName, "r");
+
 	 char scanedText[64];
 	 int res = FileScan(fileToScan, "%s", scanedText);
+	 ASSERT_TRUE(res == 1);
+	 ASSERT_TRUE(strcmp(strings[0], scanedText) == 0);
+
+	 int num = 0;
+	 res = FileScan(fileToScan, "%d", &num);
+	 ASSERT_TRUE(res == 1);
+	 ASSERT_TRUE(num == 54321);
+	 fclose(fileToScan);
 
 	 remove(fileName);
-
- 	 ASSERT_TRUE(res == 1);
-	 ASSERT_TRUE(strcmp(testString, scanedText) == 0);
  }
 
  TEST(PlatformConsoleTest, CheckScanFromFile2)
  {
-	 /*const char* const fileName = "scan_test1.txt";
-	 std::ofstream fileToCheck(fileName);
-	 const char* const testString = "testing123";
-	 const char* const testString2 = " 54321";
-	 fileToCheck << testString << testString2;
-	 fileToCheck.close();
+	 const char* const fileName = "scan_test2.txt";
+
+	 // the only diferentce between CheckScanFromFile test
+	 const char* strings[] = { "testing123", " " /*no new line*/, "54321" };
+	 setupFileScanTest(fileName, strings, 3);
 
 	 FILE* fileToScan = fopen(fileName, "r");
+
 	 char scanedText[64];
 	 int res = FileScan(fileToScan, "%s", scanedText);
+	 ASSERT_TRUE(res == 1);
+	 ASSERT_TRUE(strcmp(strings[0], scanedText) == 0);
+
+	 int num = 0;
+	 res = FileScan(fileToScan, "%d", &num);
+	 ASSERT_TRUE(res == 0);
+	 ASSERT_TRUE(num == 0);
+	 fclose(fileToScan);
 
 	 remove(fileName);
+ }
 
-	 ASSERT_TRUE(res == 1);
-	 ASSERT_TRUE(strcmp(testString, scanedText) == 0);*/
+ TEST(PlatformConsoleTest, CheckScanFromFile3)
+ {
+	 const char* const fileName = "scan_test2.txt";
+
+	 // the only diferentce between CheckScanFromFile test
+	 const char* strings[] = { "testing123", " " /*no new line*/, "54321" };
+	 setupFileScanTest(fileName, strings, 3);
+
+	 FILE* fileToScan = fopen(fileName, "r");
+
+	 char scanedText[64];
+	 int res = FileScan(fileToScan, "", scanedText);
+	 fclose(fileToScan);
+
+	 remove(fileName);
+ }
+
+ TEST(PlatformConsoleTest, CheckStringScan)
+ {
+	 int num = 0;
+	 char str[10];
+	 StringScan("9876 foobar", "%d %s", &num, str);
+
+	 ASSERT_TRUE(num == 9876);
+	 ASSERT_TRUE(strcmp(str, "foobar") == 0);
  }
 
 #if HELIUM_ASSERT_ENABLED 
 TEST(PlatformConsoleTest, FailOnWCharScan)
 {
 	ASSERT_DEATH(Scan(L""), "");
+}
+
+TEST(PlatformConsoleTest, CheckScanFromNullFile)
+{
+	FILE* fileToScan = nullptr;
+	char scanedText[64];
+	ASSERT_DEATH(FileScan(fileToScan, "%s", scanedText), "");
+}
+
+TEST(PlatformConsoleTest, FailOnWCharFileScan)
+{
+	ASSERT_DEATH(FileScan(nullptr, L""), "");
 }
 #endif
