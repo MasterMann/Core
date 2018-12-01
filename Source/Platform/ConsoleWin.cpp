@@ -120,6 +120,7 @@ int Helium::StringScan(const char* str, const char* fmt, ...)
 int Helium::StringScan(const wchar_t* str, const wchar_t* fmt, ...)
 {
 	HELIUM_ASSERT( false );
+	// vstepano: why can't we use vswscanf?
 	return 0;
 }
 
@@ -164,6 +165,7 @@ int Helium::PrintArgs(const wchar_t* fmt, va_list args)
 
 int Helium::FilePrint(FILE* f, const char* fmt, ...)
 {
+	HELIUM_ASSERT(f);
 	va_list args;
 	va_start(args, fmt);
 	int result = vfprintf(f, fmt, args);
@@ -173,6 +175,7 @@ int Helium::FilePrint(FILE* f, const char* fmt, ...)
 
 int Helium::FilePrint(FILE* f, const wchar_t* fmt, ...)
 {
+	HELIUM_ASSERT(f);
 	va_list args;
 	va_start(args, fmt);
 	int result = vfwprintf(f, fmt, args);
@@ -182,11 +185,13 @@ int Helium::FilePrint(FILE* f, const wchar_t* fmt, ...)
 
 int Helium::FilePrintArgs(FILE* f, const char* fmt, va_list args)
 {
+	HELIUM_ASSERT(f);
 	return vfprintf(f, fmt, args);
 }
 
 int Helium::FilePrintArgs(FILE* f, const wchar_t* fmt, va_list args)
 {
+	HELIUM_ASSERT(f);
 	return vfwprintf(f, fmt, args);
 }
 

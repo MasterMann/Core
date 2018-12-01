@@ -122,6 +122,62 @@ void setupFileScanTest(const char* const fileName, const char* strings[], size_t
 	 ASSERT_TRUE(strcmp(str, "foobar") == 0);
  }
 
+ TEST(PlatformConsoleTest, CheckFilePrint)
+ {
+	 const char* const fileName = "print_test.txt";
+
+	 FILE* file = fopen(fileName, "w");
+	 ASSERT_TRUE(file != NULL);
+
+	 int res = FilePrint(file, L"testing %d", 1234);
+	 ASSERT_TRUE(res != 0);
+	 ASSERT_TRUE(fclose(file) == 0);
+
+	 std::wifstream fileToCheck(fileName);
+
+	 ASSERT_TRUE(fileToCheck.is_open());
+	 std::wstring text(L"");
+	 int num = 0;
+	 fileToCheck >> text >> num;
+
+	 fileToCheck.close();
+
+	 ASSERT_TRUE(num == 1234);
+	 ASSERT_TRUE(wcscmp(text.c_str(), L"testing") == 0);
+ }
+
+ TEST(PlatformConsoleTest, CheckStringPrint)
+ {
+	 const int size = 10;
+	 char dest[size];
+
+	 int res = StringPrint(dest, size, "foobar %d", size);
+	 ASSERT_TRUE(res != 0);
+
+	 int num = 0;
+	 char str[size];
+	 StringScan(dest, "%s %d", str, &num);
+
+	 ASSERT_TRUE(num == size);
+	 ASSERT_TRUE(strcmp(str, "foobar") == 0);
+ }
+
+ TEST(PlatformConsoleTest, CheckStringPrintOverSize)
+ {
+	 const int size = 10;
+	 char dest[size];
+
+	 int res = StringPrint(dest, size, "foobar bar baz %d", 33);
+
+	 char str1[size];
+	 char str2[size];
+	 StringScan(dest, "%s %s", str1, str2);
+
+	 ASSERT_TRUE(strcmp(str1, "foobar") == 0);
+	 ASSERT_TRUE(strcmp(str2, "ba") == 0);
+ }
+
+
 #if HELIUM_ASSERT_ENABLED 
 TEST(PlatformConsoleTest, FailOnWCharScan)
 {
@@ -133,6 +189,13 @@ TEST(PlatformConsoleTest, CheckScanFromNullFile)
 	FILE* fileToScan = nullptr;
 	char scanedText[64];
 	ASSERT_DEATH(FileScan(fileToScan, "%s", scanedText), "");
+}
+
+TEST(PlatformConsoleTest, CheckPrintToNullFile)
+{
+	FILE* file = nullptr;
+	char scanedText[64];
+	ASSERT_DEATH(FilePrint(file, "123 %s", scanedText), "");
 }
 
 TEST(PlatformConsoleTest, FailOnWCharFileScan)
