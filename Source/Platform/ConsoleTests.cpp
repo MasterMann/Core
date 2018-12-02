@@ -87,8 +87,8 @@ void setupFileScanTest(const char* const fileName, const char* strings[], size_t
 	 ASSERT_TRUE(strcmp(strings[0], scanedText) == 0);
 
 	 int num = 0;
-	 res = FileScan(fileToScan, "%d", &num);
-	 ASSERT_TRUE(res == 0);
+	 int res2 = FileScan(fileToScan, "%d", &num);
+	 ASSERT_TRUE(res2 == 0);
 	 ASSERT_TRUE(num == 0);
 	 fclose(fileToScan);
 
@@ -160,6 +160,22 @@ void setupFileScanTest(const char* const fileName, const char* strings[], size_t
 
 	 ASSERT_TRUE(num == size);
 	 ASSERT_TRUE(strcmp(str, "foobar") == 0);
+ }
+
+ TEST(PlatformConsoleTest, CheckStringPrintWithSizeDeduction)
+ {
+	 const int size = 10;
+	 char dest[size];
+
+	 int res = StringPrint(dest, "barbaz %d", size);
+	 ASSERT_TRUE(res != 0);
+
+	 int num = 0;
+	 char str[size];
+	 StringScan(dest, "%s %d", str, &num);
+
+	 ASSERT_TRUE(num == size);
+	 ASSERT_TRUE(strcmp(str, "barbaz") == 0);
  }
 
  TEST(PlatformConsoleTest, CheckStringPrintOverSize)
